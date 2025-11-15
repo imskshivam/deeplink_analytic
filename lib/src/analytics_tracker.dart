@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:convert'; // <-- FIX 1: Added the missing import for jsonEncode
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -134,13 +134,9 @@ class AnalyticsTracker {
     _eventQueue.clear();
 
     try {
-      if (_config.debugMode) {
-        print('📤 Attempting to send ${eventsToSend.length} events...');
-      }
-
-      final response = await http.post(
+      await http.post(
         // <-- FIX 2: Corrected the endpoint URL
-        Uri.parse('${_config.baseUrl}'), 
+        Uri.parse('${_config.baseUrl}'),
         headers: {
           'Content-Type': 'application/json',
           // 'Authorization': 'Bearer ${_config.apiKey}', // Also good practice to send API key
@@ -150,22 +146,11 @@ class AnalyticsTracker {
         }),
       );
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        if (_config.debugMode) {
-          print('✅ Successfully sent ${eventsToSend.length} events.');
-        }
-        // <-- FIX 3: Do NOT re-add events on success. The events are sent.
-      } else {
-        if (_config.debugMode) {
-          print('⚠️ Failed to send events. Status: ${response.statusCode}. Re-queuing events.');
-        }
-        _eventQueue.addAll(eventsToSend); // Re-add events if server returns an error
-      }
+      _eventQueue.addAll(eventsToSend);
     } catch (e) {
-      // <-- FIX 3: Only re-add events if an exception occurs (e.g., no network)
-      _eventQueue.addAll(eventsToSend); 
+      _eventQueue.addAll(eventsToSend);
       if (_config.debugMode) {
-        print('❌ Failed to send events due to an error: $e. Re-queuing events.');
+        print('Failed to send events: $e');
       }
     }
   }
