@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -132,16 +134,16 @@ class AnalyticsTracker {
     _eventQueue.clear();
 
     try {
-      // final response = await http.post(
-      //   Uri.parse('${_config.baseUrl}/api/v1/events'),
-      //   headers: {
-      //     'Authorization': 'Bearer ${_config.apiKey}',
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: jsonEncode({
-      //     'events': eventsToSend.map((e) => e.toJson()).toList(),
-      //   }),
-      // );
+      await http.post(
+        Uri.parse('${_config.baseUrl}'),
+        headers: {
+          'Authorization': 'Bearer ${_config.apiKey}',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'events': eventsToSend.map((e) => e.toJson()).toList(),
+        }),
+      );
 
       _eventQueue.addAll(eventsToSend);
     } catch (e) {
