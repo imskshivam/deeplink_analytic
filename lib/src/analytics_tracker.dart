@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:convert'; 
+import 'dart:convert'; // <-- FIX 1: Added the missing import for jsonEncode
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -140,10 +140,10 @@ class AnalyticsTracker {
 
       final response = await http.post(
         // <-- FIX 2: Corrected the endpoint URL
-        Uri.parse('${_config.baseUrl}/api/v1/events'), 
+        Uri.parse('${_config.baseUrl}'), 
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${_config.apiKey}', // Also good practice to send API key
+          // 'Authorization': 'Bearer ${_config.apiKey}', // Also good practice to send API key
         },
         body: jsonEncode({
           'events': eventsToSend.map((e) => e.toJson()).toList(),
