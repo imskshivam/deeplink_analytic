@@ -1,4 +1,4 @@
-package com.yourcompany.deeplink
+package com.example.deep_link_analytic
 
 import android.content.Context
 import android.os.Handler
