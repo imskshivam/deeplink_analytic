@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hippo_analytic/analytics_tracker.dart';
-import 'package:hippo_analytic/config.dart';
-import 'package:hippo_analytic/deep_link_manager.dart';
-import 'package:hippo_analytic/event_model.dart';
+import 'package:hippo_analytic/src/analytics_tracker.dart';
+import 'package:hippo_analytic/src/config.dart';
+import 'package:hippo_analytic/src/deep_link_manager.dart';
+import 'package:hippo_analytic/src/event_model.dart';
 
 class DeepLinkWrapper extends StatefulWidget {
   final DeepLinkConfig config;

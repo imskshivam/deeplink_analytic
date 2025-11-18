@@ -32,8 +32,7 @@ class AnalyticsTracker {
 
   Future<void> _initializeUser() async {
     final prefs = await SharedPreferences.getInstance();
-    _userId =
-        prefs.getString('deeplink_user_id') ??
+    _userId = prefs.getString('deeplink_user_id') ?? 
         'user_${DateTime.now().millisecondsSinceEpoch}';
     await prefs.setString('deeplink_user_id', _userId);
   }
@@ -120,7 +119,7 @@ class AnalyticsTracker {
   }
 
   void _startFlushTimer() {
-    _flushTimer = Timer.periodic(Duration(seconds: 30), (timer) {
+    _flushTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       _flushEvents();
     });
   }
@@ -128,26 +127,26 @@ class AnalyticsTracker {
   Future<void> _flushEvents() async {
     if (_eventQueue.isEmpty) return;
 
-    final List<AnalyticsEvent> eventsToSend = List<AnalyticsEvent>.from(
-      _eventQueue,
-    );
+    final eventsToSend = List<AnalyticsEvent>.from(_eventQueue);
     _eventQueue.clear();
 
     try {
-      await http.post(
-        // <-- FIX 2: Corrected the endpoint URL
-        Uri.parse('${_config.baseUrl}'),
+      final response = await http.post(
+        Uri.parse('${_config.baseUrl}/events'),
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer ${_config.apiKey}', // Also good practice to send API key
+          'Authorization': 'Bearer ${_config.apiKey}',
         },
         body: jsonEncode({
           'events': eventsToSend.map((e) => e.toJson()).toList(),
         }),
       );
 
-      _eventQueue.addAll(eventsToSend);
+      if (response.statusCode != 200) {
+        throw Exception('Failed to send events: ${response.statusCode}');
+      }
     } catch (e) {
+      // Re-add events to queue on failure
       _eventQueue.addAll(eventsToSend);
       if (_config.debugMode) {
         print('Failed to send events: $e');
