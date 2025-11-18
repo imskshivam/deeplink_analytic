@@ -23,3 +23,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+# Plugin configuration
+plugin:
+  platforms:
+    android:
+      package: com.hippo_analytic.app
+      pluginClass: DeepLinkPackagePlugin
