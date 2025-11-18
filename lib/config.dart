@@ -8,7 +8,7 @@ class DeepLinkConfig {
 
   const DeepLinkConfig({
     required this.apiKey,
-    this.baseUrl = 'https://api.your-deeplink-service.com',
+     required this.baseUrl,
     this.enableAnalytics = true,
     this.trackScreenViews = true,
     this.trackTaps = false,
