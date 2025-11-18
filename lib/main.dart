@@ -1,166 +1,122 @@
 import 'package:flutter/material.dart';
-import 'package:hippo_analytic/analytics_tracker.dart';
-import 'package:hippo_analytic/config.dart';
-import 'package:hippo_analytic/deep_link_manager.dart';
-import 'package:hippo_analytic/event_model.dart';
-import 'package:hippo_analytic/widgets/deep_link_wrapper.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    // The DeepLinkWrapper initializes the manager with your configuration
-    return DeepLinkWrapper(
-      config: DeepLinkConfig(
-        apiKey: 'your_api_key',
-        // The baseUrl should point to your server root
-        baseUrl: 'http://192.168.1.24:5000',
-        debugMode: true, // Enable debug prints
-        enableAnalytics: true, // Ensure analytics are enabled
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        // This is the theme of your application.
+        //
+        // TRY THIS: Try running your application with "flutter run". You'll see
+        // the application has a purple toolbar. Then, without quitting the app,
+        // try changing the seedColor in the colorScheme below to Colors.green
+        // and then invoke "hot reload" (save your changes or press the "hot
+        // reload" button in a Flutter-supported IDE, or press "r" if you used
+        // the command line to start the app).
+        //
+        // Notice that the counter didn't reset back to zero; the application
+        // state is not lost during the reload. To reset the state, use hot
+        // restart instead.
+        //
+        // This works for code too, not just values: Most code changes can be
+        // tested with just a hot reload.
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      child: MaterialApp(title: 'Deep Link Tester', home: HomePage()),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  final String title;
+
   @override
-  _HomePageState createState() => _HomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  // Use the singleton instance of the manager
-  final DeepLinkManager _deepLinkManager = DeepLinkManager();
+class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    // No need to call initialize() here, DeepLinkWrapper does it for you.
-    _setupDeepLinkHandlers();
-
-    // After initialization, you can handle any link that opened the app
-    _deepLinkManager.handleDeferredDeepLink();
-  }
-
-  void _setupDeepLinkHandlers() {
-    _deepLinkManager.addHandler(ProductDeepLinkHandler());
-  }
-
-  // Creates a deep link and prints it to the console
-  Future<void> _createDeepLink() async {
-    print("--- Tapped: Create Deep Link ---");
-    try {
-      final deepLink = await _deepLinkManager.createDeepLink(
-        destination: 'https://myapp.com/product/123',
-        campaign: 'summer_sale',
-        source: 'facebook',
-        medium: 'social',
-      );
-
-      print('✅ Created deep link (printed in Flutter console): $deepLink');
-      print("Check your backend console to see the request to /api/v1/links");
-    } catch (e) {
-      print('❌ Error creating deep link: $e');
-    }
-  }
-
-  // Simulates a new app install with a referrer URL
-  Future<void> _simulateInstall() async {
-    print("--- Tapped: Simulate Install ---");
-    const referrer =
-        'utm_source=google&utm_medium=cpc&utm_campaign=new_user_promo';
-    // await _deepLinkManager.simulateAppInstall(referrer);
-    print('✅ Simulated install with referrer: "$referrer"');
-    print(
-      "This triggers 'install_referrer_received' and 'install_referrer_processed' events.",
-    );
-  }
-
-  // Tracks a custom analytics event
-  Future<void> _trackCustomEvent() async {
-    print("--- Tapped: Track Custom Event ---");
-    // Use the AnalyticsTracker singleton to track any event
-    await AnalyticsTracker().trackEvent(
-      'button_click',
-      properties: {
-        'button_id': 'custom_event_button',
-        'page': 'home',
-        'is_testing': true,
-      },
-    );
-    print("✅ 'button_click' event added to the queue.");
-    print("Events will be sent to the backend in a batch.");
-  }
-
-  // Gets and prints the current internal state of the DeepLinkManager
-  Future<void> _checkState() async {
-    print("--- Tapped: Check State ---");
-    final state = await _deepLinkManager.getDeepLinkState();
-    print("✅ Current DeepLinkManager State:");
-    // Simple print loop for better readability
-    state.forEach((key, value) {
-      print("  - $key: $value");
+  void _incrementCounter() {
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _counter++;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    // This method is rerun every time setState is called, for instance as done
+    // by the _incrementCounter method above.
+    //
+    // The Flutter framework has been optimized to make rerunning build methods
+    // fast, so that you can just rebuild anything that needs updating rather
+    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(title: Text('Deep Link & Analytics Test')),
+      appBar: AppBar(
+        // TRY THIS: Try changing the color here to a specific color (to
+        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+        // change color while the other colors stay the same.
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ElevatedButton(
-                onPressed: _createDeepLink,
-                child: Text('1. Create Deep Link'),
-              ),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _simulateInstall,
-                child: Text('2. Simulate App Install'),
-              ),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _trackCustomEvent,
-                child: Text('3. Track Custom Event'),
-              ),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _checkState,
-                child: Text('4. Check Internal State'),
-              ),
-            ],
-          ),
+        // Center is a layout widget. It takes a single child and positions it
+        // in the middle of the parent.
+        child: Column(
+          // Column is also a layout widget. It takes a list of children and
+          // arranges them vertically. By default, it sizes itself to fit its
+          // children horizontally, and tries to be as tall as its parent.
+          //
+          // Column has various properties to control how it sizes itself and
+          // how it positions its children. Here we use mainAxisAlignment to
+          // center the children vertically; the main axis here is the vertical
+          // axis because Columns are vertical (the cross axis would be
+          // horizontal).
+          //
+          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
+          // action in the IDE, or press "p" in the console), to see the
+          // wireframe for each widget.
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text('You have pushed the button this many times:'),
+            Text(
+              '$_counter',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+          ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
-  }
-
-  @override
-  void dispose() {
-    _deepLinkManager.dispose();
-    super.dispose();
-  }
-}
-
-// Your handler remains the same
-class ProductDeepLinkHandler extends DeepLinkHandler {
-  @override
-  bool canHandle(DeepLinkData data) {
-    return data.path?.contains('product') == true;
-  }
-
-  @override
-  Future<void> handle(DeepLinkData data) async {
-    final productId = data.path?.split('/').last;
-    print('✅ Navigating to product with ID: $productId from deep link.');
-    // In a real app, you would navigate to the product page here.
   }
 }
