@@ -1,16 +1,23 @@
-# hippo_analytic
+# Hippo Analytic
 
-A new Flutter project.
+A Flutter package for deep linking and analytics tracking with install referrer support.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- 📊 Analytics event tracking
+- 🔗 Deep link handling
+- 📱 Install referrer tracking
+- 📈 Conversion tracking
+- 🎯 Screen view tracking
+- ⚡ Real-time event batching
 
-A few resources to get you started if this is your first Flutter project:
+## Installation
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Add this to your `pubspec.yaml`:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```yaml
+dependencies:
+  hippo_analytic: 
+    git:
+      url: https://github.com/yourusername/hippo_analytic.git
+      ref: main

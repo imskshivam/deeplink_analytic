@@ -22,7 +22,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.hippo_analytic.app"
+    namespace "com.hippoanalytic"
     compileSdk 35
      ndkVersion "29.0.14033849"
 
@@ -43,7 +43,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.hippo_analytic.app"
+        applicationId "com.hippoanalytic"
         minSdkVersion 24
         targetSdk 35
         versionCode flutterVersionCode.toInteger()

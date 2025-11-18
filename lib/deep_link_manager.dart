@@ -14,7 +14,7 @@ class DeepLinkManager {
   DeepLinkManager._internal();
 
   final AnalyticsTracker _analytics = AnalyticsTracker();
-  static const MethodChannel _channel = MethodChannel('deep_link_package');
+  static const MethodChannel _channel = MethodChannel('hippo_analytic');
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
   final List<DeepLinkHandler> _handlers = [];
@@ -38,12 +38,9 @@ class DeepLinkManager {
     }
   }
 
-  // Method to get install referrer using MethodChannel
   Future<Map<String, dynamic>?> getInstallReferrer() async {
     try {
-      final String? referrerData = await _channel.invokeMethod(
-        'getInstallReferrer',
-      );
+      final String? referrerData = await _channel.invokeMethod('getInstallReferrer');
       if (referrerData != null && referrerData.isNotEmpty) {
         final Map<String, dynamic> data = jsonDecode(referrerData);
 
@@ -59,8 +56,6 @@ class DeepLinkManager {
 
         if (_config.debugMode) {
           print('📱 Install Referrer: ${data['install_referrer']}');
-          print('⏰ Click Timestamp: ${data['referrer_click_timestamp']}');
-          print('📥 Install Timestamp: ${data['install_begin_timestamp']}');
         }
 
         return data;
@@ -89,21 +84,16 @@ class DeepLinkManager {
   Future<void> _handleInstallReferrer() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final hasProcessedReferrer =
-          prefs.getBool('has_processed_install_referrer') ?? false;
+      final hasProcessedReferrer = prefs.getBool('has_processed_install_referrer') ?? false;
 
       if (!hasProcessedReferrer) {
         final referrerData = await getInstallReferrer();
 
         if (referrerData != null && referrerData['install_referrer'] != null) {
-          final String? installReferrer = referrerData['install_referrer']
-              ?.toString();
+          final String? installReferrer = referrerData['install_referrer']?.toString();
 
           if (installReferrer != null && installReferrer.isNotEmpty) {
-            // Parse the install referrer as a deep link
             await _processInstallReferrer(installReferrer);
-
-            // Mark as processed
             await prefs.setBool('has_processed_install_referrer', true);
 
             if (_config.debugMode) {
@@ -111,8 +101,6 @@ class DeepLinkManager {
             }
           }
         }
-
-        // Even if no referrer, mark as processed to avoid checking again
         await prefs.setBool('has_processed_install_referrer', true);
       }
     } catch (e) {
@@ -124,10 +112,7 @@ class DeepLinkManager {
 
   Future<void> _processInstallReferrer(String installReferrer) async {
     try {
-      // Install referrer usually contains UTM parameters
       final params = Uri.splitQueryString(installReferrer);
-
-      // Create a mock URL from the referrer data
       final mockUrl = 'https://install.referrer?$installReferrer';
       final uri = Uri.parse(mockUrl);
 
@@ -143,7 +128,6 @@ class DeepLinkManager {
         },
       );
 
-      // Handle as a deep link
       await _handleDeepLink(uri);
     } catch (e) {
       if (_config.debugMode) {
@@ -196,10 +180,8 @@ class DeepLinkManager {
       print('🔗 Deep link received: ${uri.toString()}');
     }
 
-    // Store for deferred handling
     await _storeDeferredDeepLink(deepLinkData.originalUrl);
 
-    // Check if we have a handler for this path
     for (final handler in _handlers) {
       if (handler.canHandle(deepLinkData)) {
         await handler.handle(deepLinkData);
@@ -207,7 +189,6 @@ class DeepLinkManager {
       }
     }
 
-    // Default handling
     await _navigateFromDeepLink(deepLinkData);
   }
 
@@ -246,7 +227,6 @@ class DeepLinkManager {
       _linkCounter++;
       final linkId = 'link_$_linkCounter';
 
-      // Create a mock deep link for local testing
       final mockDeepLink = _buildMockDeepLink(
         linkId: linkId,
         destination: destination,
@@ -257,7 +237,6 @@ class DeepLinkManager {
         customParams: customParams,
       );
 
-      // Store locally for tracking
       await _storeCreatedDeepLink(
         id: linkId,
         deepLink: mockDeepLink,
@@ -313,10 +292,7 @@ class DeepLinkManager {
       ...?customParams,
     };
 
-    final queryString = params.entries
-        .map((e) => '${e.key}=${e.value}')
-        .join('&');
-
+    final queryString = params.entries.map((e) => '${e.key}=${e.value}').join('&');
     return 'https://deeplink.example.com/link/$linkId?$queryString';
   }
 
@@ -376,9 +352,6 @@ class DeepLinkManager {
     }
   }
 
- 
-
-  // Method to manually check for pending install referrer (useful for testing)
   Future<void> checkPendingInstallReferrer() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -399,14 +372,12 @@ class DeepLinkManager {
     }
   }
 
-  // Method to simulate app install with referrer (for testing)
   Future<void> simulateAppInstall(String referrerUrl) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('pending_install_referrer', referrerUrl);
       await prefs.setBool('has_processed_install_referrer', false);
 
-      // Process the simulated install
       await _handleInstallReferrer();
 
       if (_config.debugMode) {
@@ -443,19 +414,16 @@ class DeepLinkManager {
     await _analytics.trackConversion(linkId, value, metadata: metadata);
   }
 
-  // Method to get current deep link state
   Future<Map<String, dynamic>> getDeepLinkState() async {
     final prefs = await SharedPreferences.getInstance();
     final deferredLink = prefs.getString('deferred_deep_link');
     final pendingReferrer = prefs.getString('pending_install_referrer');
-    final hasProcessedReferrer =
-        prefs.getBool('has_processed_install_referrer') ?? false;
+    final hasProcessedReferrer = prefs.getBool('has_processed_install_referrer') ?? false;
 
     return {
       'hasDeferredLink': deferredLink != null && deferredLink.isNotEmpty,
       'deferredLink': deferredLink,
-      'hasPendingInstallReferrer':
-          pendingReferrer != null && pendingReferrer.isNotEmpty,
+      'hasPendingInstallReferrer': pendingReferrer != null && pendingReferrer.isNotEmpty,
       'pendingInstallReferrer': pendingReferrer,
       'hasProcessedInstallReferrer': hasProcessedReferrer,
       'handlersCount': _handlers.length,

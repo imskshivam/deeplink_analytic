@@ -1,4 +1,4 @@
-package com.hippo_analytic.app
+package com.hippoanalytic
 
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -6,35 +6,20 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import org.json.JSONObject
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import android.content.Context
 
-class DeepLinkPackagePlugin: FlutterPlugin, MethodCallHandler {
+class HippoAnalyticPlugin: FlutterPlugin, MethodCallHandler {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
   private var referrerClient: InstallReferrerClient? = null
 
-  companion object {
-    @JvmStatic
-    fun registerWith(registrar: Registrar) {
-      val channel = MethodChannel(registrar.messenger(), "deep_link_package")
-      val plugin = DeepLinkPackagePlugin()
-      plugin.context = registrar.context()
-      channel.setMethodCallHandler(plugin)
-    }
-  }
-
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "deep_link_package")
+    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "hippo_analytic")
     channel.setMethodCallHandler(this)
-  }
-
-  override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-    channel.setMethodCallHandler(null)
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
@@ -89,5 +74,9 @@ class DeepLinkPackagePlugin: FlutterPlugin, MethodCallHandler {
     } catch (e: Exception) {
       result.error("INIT_ERROR", "Failed to initialize referrer client", e.message)
     }
+  }
+
+  override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+    channel.setMethodCallHandler(null)
   }
 }

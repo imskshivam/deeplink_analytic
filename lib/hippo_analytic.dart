@@ -1,7 +1,9 @@
 library hippo_analytic;
 
-export 'src/analytics_tracker.dart';
-export 'src/deep_link_manager.dart';
-export 'src/event_model.dart';
-export 'src/config.dart';
-export 'src/widgets/deep_link_wrapper.dart';
+export 'analytics_tracker.dart';
+export 'deep_link_manager.dart';
+export 'event_model.dart';
+export 'config.dart';
+export 'widgets/deep_link_wrapper.dart';
+
+
