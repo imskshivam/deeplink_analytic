@@ -60,7 +60,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.example.deep_link_package
+        package: com.example.deep_link_analytic
         pluginClass: DeepLinkPackagePlugin
 
   # The following line ensures that the Material Icons font is
