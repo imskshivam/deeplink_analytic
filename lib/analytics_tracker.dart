@@ -132,7 +132,7 @@ class AnalyticsTracker {
 
     try {
       final response = await http.post(
-        Uri.parse('${_config.baseUrl}/events'),
+        Uri.parse('${_config.baseUrl}/'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ${_config.apiKey}',
